@@ -1,0 +1,7 @@
+{
+  "name": "escalate-case",
+  "version": "1.0.0",
+  "description": "",
+  "main": "escalate-case.js",
+  "type": "module"
+}

@@ -1,0 +1,22 @@
+*.js
+!lambdas/**/*.js
+!mod*/**/*.js
+!jest.config.js
+*.d.ts
+node_modules
+env
+.idea
+target
+.vscode
+# CDK asset staging directory
+.cdk.staging
+cdk.out
+
+ssh-key*
+
+HELLO.mp3
+translated.txt
+*out.txt
+
+*.zip
+*.pdf

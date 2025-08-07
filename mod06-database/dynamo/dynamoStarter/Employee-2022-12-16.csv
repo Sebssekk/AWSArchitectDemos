@@ -1,0 +1,11 @@
+LoginAlias,ManagerLoginAlias,FirstName,LastName,Skills
+diegor,johns,Diego,Ramirez,"[""test skill 1""]"
+diegor,ben,Zin,Ramirez,"[""test skill2"",""another skill you didn't know""]"
+diegor,johns2,Conan,Ramirez,"[""executive assistant""]"
+diegor,zhoan,Aldo,Ramirez,"[""executive assistant""]"
+mateoj,marthar,Mateo,Jackson,"[""software""]"
+marym,johns,Mary,Major,"[""operations""]"
+johns,NA,John,Stiles,"[""executive management""]"
+janer,marthar,Jane,Roe,"[""software""]"
+janed,marthar,Jane,Doe,"[""software""]"
+marthar,johns,Martha,Rivera,"[""management"",""software""]"

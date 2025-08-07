@@ -1,0 +1,12 @@
+{
+  "name": "dynamo",
+  "version": "1.0.0",
+  "description": "",
+  "main": "dynamo-put.js",
+  "type": "module",
+  "dependencies": {
+    "@aws-sdk/client-dynamodb": "^3.231.0",
+    "@aws-sdk/lib-dynamodb": "^3.231.0",
+    "csv-parse": "^5.3.3"
+  }
+}

@@ -1,0 +1,7 @@
+{
+  "name": "assign-case",
+  "version": "1.0.0",
+  "description": "",
+  "main": "assign-case.js",
+  "type": "module"
+}

@@ -1,0 +1,1 @@
+SELECT FirstName, Skills FROM Employee WHERE LastName  = 'Ramirez'

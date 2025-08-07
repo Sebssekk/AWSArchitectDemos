@@ -1,0 +1,12 @@
+{
+  "name": "translator-function",
+  "version": "1.0.0",
+  "main": "main.js",
+  "author": "Sebssekk",
+  "license": "MIT-0",
+  "dependencies": {
+    "@aws-sdk/client-s3": "^3.859.0",
+    "@aws-sdk/client-translate": "^3.859.0"
+  },
+  "description": ""
+}

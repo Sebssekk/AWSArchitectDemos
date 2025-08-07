@@ -1,0 +1,7 @@
+{
+  "name": "open-case",
+  "version": "1.0.0",
+  "description": "",
+  "main": "open-case.js",
+  "type": "module"
+}
