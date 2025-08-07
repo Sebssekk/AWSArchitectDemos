@@ -33,11 +33,6 @@ export class Networking12Stack extends Stack {
               name: 'private',
               subnetType: SubnetType.PRIVATE_WITH_EGRESS,
             },
-            {
-              cidrMask: 24,
-              name: 'isolated',
-              subnetType: SubnetType.PRIVATE_ISOLATED,
-            },
         ],
         gatewayEndpoints: {
             S3 : {
@@ -117,9 +112,7 @@ export class Networking12Stack extends Stack {
         }
     );
 
-    this.demoVpc.selectSubnets({
-        subnetFilters: [SubnetFilter.byCidrMask(24)]
-    }).subnets.map((sub: ISubnet) => {
+    (this.demoVpc.privateSubnets.concat(this.demoVpc.publicSubnets)).map((sub: ISubnet) => {
             (sub as Subnet).addRoute("RouteToRemote", {
                 destinationCidrBlock: isolatedVpc.vpcCidrBlock,
                 routerType: RouterType.VPC_PEERING_CONNECTION,
