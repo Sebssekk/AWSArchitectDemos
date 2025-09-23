@@ -1,3 +1,4 @@
+# Assume demo-user identity  
 export AWS_SECRET_ACCESS_KEY=$(aws cloudformation describe-stacks --stack-name AWSArchitect-PermissionStack --query Stacks[0].Outputs[0].OutputValue | cut -d \" -f 2)
 export AWS_ACCESS_KEY_ID=$(aws cloudformation describe-stacks --stack-name AWSArchitect-PermissionStack --query Stacks[0].Outputs[1].OutputValue | cut -d \" -f 2)
 

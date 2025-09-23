@@ -72,6 +72,7 @@ Before the course start the project must be bootstrapped to prepare resources.
 A step by step guide on how to use demos during the course modules
 
 ### **[Module 1 - Interactin with AWS](./mod01-aws_interaction/README.md)**
+### **[Module 2 - Exploring IAM](./mod02-iam/README.md)**
 
 ## **Clean up**
 
