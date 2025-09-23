@@ -1,9 +1,7 @@
-import { Stack, StackProps } from "aws-cdk-lib";
-import { CfnVPCPeeringConnection, FlowLogTrafficType, GatewayVpcEndpointAwsService, Instance, InstanceClass, InstanceSize, InstanceType, InterfaceVpcEndpointAwsService, IpAddresses, ISubnet, KeyPair, KeyPairType, MachineImage, Peer, Port, RouterType, SecurityGroup, Subnet, SubnetFilter, SubnetType, UserData, Vpc, WindowsVersion } from "aws-cdk-lib/aws-ec2";
+import { CfnOutput, Stack, StackProps } from "aws-cdk-lib";
+import { CfnVPCPeeringConnection, FlowLogTrafficType, GatewayVpcEndpointAwsService, Instance, InstanceClass, InstanceSize, InstanceType, InterfaceVpcEndpointAwsService, IpAddresses, ISubnet, KeyPair, KeyPairFormat, KeyPairType, MachineImage, Peer, Port, RouterType, SecurityGroup, Subnet, SubnetFilter, SubnetType, UserData, Vpc, WindowsVersion } from "aws-cdk-lib/aws-ec2";
 import { ManagedPolicy, Role, ServicePrincipal } from "aws-cdk-lib/aws-iam";
 import { Construct } from "constructs";
-import { readFileSync } from "fs";
-import path = require("path");
 
 export class Networking12Stack extends Stack {
   public readonly demoVpc: Vpc
@@ -154,14 +152,18 @@ export class Networking12Stack extends Stack {
         Port.HTTPS
     )
     
-    const sshKey = new KeyPair(this, "SSHKeyPair", {
-        keyPairName: "demo-ssh-key",
-        publicKeyMaterial: readFileSync("./mod04-compute/ssh-key_ed25519.pub", {encoding:"utf-8"})
-    })
     const winKey = new KeyPair(this, "WinKeyPair", {
-        keyPairName: "win-rsa-key",
-        publicKeyMaterial: readFileSync("./mod04-compute/win-key_rsa.pub", {encoding:"utf-8"})
+        keyPairName: "demo-win-key",
+        format: KeyPairFormat.PEM,
+        type: KeyPairType.RSA
     })
+
+    const sshKey = new KeyPair(this, "LinKeyPair", {
+        keyPairName: "demo-lin-key",
+        format: KeyPairFormat.PEM,
+        type: KeyPairType.ED25519
+    })
+    
 
     const ssmRole = new Role(this, "SSMRole", {
         roleName: "demo-ssm-role",

@@ -73,6 +73,8 @@ A step by step guide on how to use demos during the course modules
 
 ### **[Module 1 - Interactin with AWS](./mod01-aws_interaction/README.md)**
 ### **[Module 2 - Exploring IAM](./mod02-iam/README.md)**
+### **[Module 3 - Networking 1](./mod03-networking1/README.md)**
+### **[Module 4 - Compute](./mod04-compute/README.md)**
 
 ## **Clean up**
 

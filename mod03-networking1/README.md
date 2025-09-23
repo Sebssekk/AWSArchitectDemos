@@ -4,6 +4,7 @@ This folder will help you demoing basic network services (***Virtual Private Clo
 
 ## **Content**
 This repo will create for this module
+### **Networks**
 - a **VPC** called `demoVpc` with
     - 4 subnets (2 public - 2 private)
     - Internet Gateway 
@@ -18,9 +19,8 @@ This repo will create for this module
     - interface endpoints for
         - Cloud watch
         - System Manager
-- 2 Key Pairs, generated locally
-    - [ssh-key_ed25519](../mod04-compute/ssh-key_ed25519) for Linux VMs
-    - [win-key_rsa](../mod04-compute/win-key_rsa) for Windows VMs
+
+### **EC2** (to test networks)
 - A `pub-sg` **Security Group** allowing SSH, HTTP, HTTPS, RDP from anywhere
 - A `priv-sg` **Security Group** allowing HTTPS from anywhere
 - A `interface-ep-sg` **Security Group** allowing only traffic from isolated vpc
@@ -29,8 +29,19 @@ This repo will create for this module
     - `pub-ec2` a publicly accessible Linux VM with  with SSM Role and pub-sg
     - `pub-ec2-win` a publicly accessible Windows VM with SSM Role and pub-sg
     - `priv-ec2` a Linux VM in the private subnet with priv-sg and SSM Role
-    - `isolated-ec2` a VM in the ISOLATED VPC with isolated sg and ssm Role
+    - `isolated-ec2` a VM in the ISOLATED VPC with isolated sg and ssm Role  
 
+
+**TO CONNECT TO INSTANCES** is possible to use the sytem manager for ALL of them.  
+It's also possible 
+- For `pub-ec2` connect via ssh with  
+    ```bash
+    ssh -i demo-lin-key.pem ec2-user@<PUBLIC-IP>
+    ```
+- For `pub-ec2-win` connect via rdp using `Administrator` as user name and retrieve the password from the console using `demo-win-key.pem`
+
+**TO GET PEM KEYS** you can use the script [retrieve-ec2-keys.sh](./retrieve-ec2-keys.sh) or [retrieve-ec2-keys.ps1](./retrieve-ec2-keys.ps1).  
+Both scripts will generate files `demo-lin-key.pem` and `demo-win-key.pem` in this folder.
 
 ## **Some possible demoes**
 - Explore VPC created resources
