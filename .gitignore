@@ -13,8 +13,9 @@ target
 cdk.out
 
 ssh-key*
+win-key*
 
-HELLO.mp3
+*.mp3
 translated.txt
 *out.txt
 

@@ -26,11 +26,12 @@ To fully use this project you'll need to configure
   ```bash
   $ npm install -g aws-cdk
   ```
-- **python/node runtimes** if you want to run every sdk example in the project  
+- **python/node/java runtimes** if you want to run every sdk example in the project  
   Versions used during the creation:
 
   - Python 3.10.11
   - Node v24.4.1
+  - Java openjdk 17
 
 - **Docker**  
   (To build and upload a demo docker image to ***ECR***)
@@ -70,9 +71,7 @@ Before the course start the project must be bootstrapped to prepare resources.
 
 A step by step guide on how to use demos during the course modules
 
-### TODO
-
-..................................
+### **[Module 1 - Interactin with AWS](./mod01-aws_interaction/README.md)**
 
 ## **Clean up**
 
@@ -82,11 +81,7 @@ To destroy everything that was created by cdk
 $ cdk destroy --all
 ```
 
-Moreover some resources were created during module 3 and module 6. Those can be deleted with
+Moreover some resources were created during module 3 and module 6. **Remember to clean them!**
 
-```bash
-$ cd mod01-aws_interaction/demo-cli
-$ bash clean.sh
-```
 
 Any other resource created manually during the course won't be seen by cdk and you'll need to delete them manually

@@ -24,7 +24,7 @@ bucket_list = s3_client.list_buckets()
 for b in bucket_list['Buckets']:
     if "demo-public" in b["Name"]:
         bucket= b["Name"]
-        print('--- Target backet: ' + bucket)
+        print('--- Target bucket: ' + bucket)
 
 if not bucket:
     raise SystemExit("[X] Bucket not found... Did you run ../demo-cli/s3.sh ?")

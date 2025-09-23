@@ -72,7 +72,7 @@ export class ServerlessStack extends Stack {
 
     new sfn.StateMachine(this, "TranslateSfn", {
       stateMachineName: "ParallelTranslate",
-      definition: parallel,
+      definitionBody: sfn.DefinitionBody.fromChainable(parallel),
       timeout: Duration.minutes(5),
       tracingEnabled: true,
     });
@@ -175,7 +175,7 @@ export class ServerlessStack extends Stack {
 
     const simpleCaseWorkflow = new sfn.StateMachine(this, "StateMachine", {
       stateMachineName: "SimpleCaseWorkflow",
-      definition: chain,
+      definitionBody: sfn.DefinitionBody.fromChainable(chain),
       tracingEnabled: true,
       stateMachineType: sfn.StateMachineType.EXPRESS,
       logs: {
