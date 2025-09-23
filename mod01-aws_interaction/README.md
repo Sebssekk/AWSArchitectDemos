@@ -38,7 +38,7 @@ This folder will help you demoing aws intereactions via console, cli and sdk
     - The JS code will download the translated file uploaded from the python script
 
 ## **Clean up**
-When you're ready to clean resources you can 
+When you're ready to clean resources (at the end of the course) you can 
 0. Open a terminal to this repo root folder.
 1. Change directory to *demo-cli*
     ```

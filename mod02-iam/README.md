@@ -31,7 +31,7 @@ This demo can be done both on the Console and on the CLI.
     - Try to list all buckets (✅OK PERMISSION to see them all -> ROLE IAM POLICY)
     - Try to list all objects of *demo-public* bucket (✅OK PERMISSION -> ROLE IAM POLICY)
     - Try to download an object from *demo-public* bucket (✅OK PERMISSION -> ROLE IAM POLICY)
-    - Try to download an object from *private-public* bucket (✅OK PERMISSION -> ROLE RB POLICY of bucket)  
+    - Try to download an object from *private-public* bucket (✅OK PERMISSION -> ROLE  IAM POLICY)  
 
     - As the role is an admin role... Try to list ec2 (⛔**NO** PERMISSION -> Permission Boundary)
 

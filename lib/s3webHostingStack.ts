@@ -29,7 +29,7 @@ export class S3WebHostingStack extends Stack {
 
     webHostingBucket.grantRead(new AnyPrincipal());
 
-    const webDeployment = new s3deploy.BucketDeployment(this, "DeployWebsite", {
+    new s3deploy.BucketDeployment(this, "DeployWebsite", {
       sources: [s3deploy.Source.asset("./mod05-storage/static-website-example")],
       destinationBucket: webHostingBucket,
     });
