@@ -1,5 +1,6 @@
-import { CfnOutput, Stack, StackProps } from "aws-cdk-lib";
-import { CfnVPCPeeringConnection, FlowLogTrafficType, GatewayVpcEndpointAwsService, Instance, InstanceClass, InstanceSize, InstanceType, InterfaceVpcEndpointAwsService, IpAddresses, ISubnet, KeyPair, KeyPairFormat, KeyPairType, MachineImage, Peer, Port, RouterType, SecurityGroup, Subnet, SubnetFilter, SubnetType, UserData, Vpc, WindowsVersion } from "aws-cdk-lib/aws-ec2";
+import { RouteTable } from "@aws-cdk/aws-ec2-alpha";
+import { Stack, StackProps, Tags } from "aws-cdk-lib";
+import { CfnVPCPeeringConnection, FlowLogTrafficType, GatewayVpcEndpointAwsService, Instance, InstanceClass, InstanceSize, InstanceType, InterfaceVpcEndpointAwsService, IpAddresses, ISubnet, KeyPair, KeyPairFormat, KeyPairType, MachineImage, Peer, Port, PublicSubnet, RouterType, SecurityGroup, Subnet, SubnetType, UserData, Vpc, WindowsVersion } from "aws-cdk-lib/aws-ec2";
 import { ManagedPolicy, Role, ServicePrincipal } from "aws-cdk-lib/aws-iam";
 import { Construct } from "constructs";
 
@@ -12,7 +13,7 @@ export class Networking12Stack extends Stack {
 
     this.demoVpc = new Vpc(this, "Networking1Vpc", {
         ipAddresses: IpAddresses.cidr("172.16.0.0/16"),
-        vpcName: "demoVpc",
+        vpcName: "demo-vpc",
         createInternetGateway: true,
         maxAzs: 3,
         flowLogs: {
@@ -39,9 +40,16 @@ export class Networking12Stack extends Stack {
         }
     })
 
+    this.demoVpc.publicSubnets.forEach((sub: ISubnet, idx: number)=>{
+        Tags.of(sub as PublicSubnet).add('Name',`demo-pub-sub-${idx+1}`);
+    })
+    this.demoVpc.privateSubnets.forEach((sub: ISubnet, idx: number)=>{
+        Tags.of(sub as Subnet).add('Name',`demo-priv-sub-${idx+1}`);
+    })
+
     const isolatedVpc = new Vpc(this, "Networking2Vpc", {
         ipAddresses: IpAddresses.cidr("192.168.0.0/20"),
-        vpcName: "demoIsolatedVpc",
+        vpcName: "remote-vpc",
         createInternetGateway: false,
         maxAzs: 1,
         flowLogs: {
@@ -57,6 +65,10 @@ export class Networking12Stack extends Stack {
             },
         ],
     })
+    isolatedVpc.isolatedSubnets.forEach((sub: ISubnet, idx: number)=>{
+        Tags.of(sub as Subnet).add('Name',`remote-sub-${idx+1}`)
+    })
+
     const isolatedSG = new SecurityGroup(this, "IsolatedVpcSG",{
         securityGroupName: "interface-ep-sg",
         vpc: isolatedVpc
