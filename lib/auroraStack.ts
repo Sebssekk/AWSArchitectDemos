@@ -1,11 +1,11 @@
 import { RemovalPolicy, SecretValue, Stack, StackProps } from "aws-cdk-lib";
 import { AuroraMysqlEngineVersion, ClientPasswordAuthType, ClusterInstance, DatabaseCluster, DatabaseClusterEngine, DatabaseProxy, ProxyTarget } from "aws-cdk-lib/aws-rds";
 import { Construct } from "constructs";
-import { VpcStackProps } from "./types";
-import { Peer, Port, SecurityGroup, SubnetType } from "aws-cdk-lib/aws-ec2";
+import { VpcAndSGStackProps } from "./types";
+import { InstanceClass, InstanceSize, InstanceType, Peer, Port, SecurityGroup, SubnetType } from "aws-cdk-lib/aws-ec2";
 
 export class AuroraStack extends Stack {
-  constructor(scope: Construct, id: string, props?: VpcStackProps) {
+  constructor(scope: Construct, id: string, props?: VpcAndSGStackProps) {
     super(scope, id, props);
 
     const auroraSG = new SecurityGroup(this, "AuroraSG", {
@@ -13,15 +13,21 @@ export class AuroraStack extends Stack {
             vpc: props!.vpc
         })
     auroraSG.addIngressRule(
-        Peer.securityGroupId(props!.vmSg!.securityGroupId),
+        Peer.securityGroupId(props!.sg!.securityGroupId),
         Port.MYSQL_AURORA
     )
-    const auroraCluster = new DatabaseCluster(this, 'DemoAuroraMysql', {
+    new DatabaseCluster(this, 'DemoAuroraMysql', {
         securityGroups: [auroraSG],
         engine: DatabaseClusterEngine.auroraMysql({
-            version: AuroraMysqlEngineVersion.VER_3_09_0,
+            version: AuroraMysqlEngineVersion.VER_3_10_0,
         }),
-        writer: ClusterInstance.provisioned('writer'),
+        writer: ClusterInstance.provisioned('writer',{
+            instanceType: InstanceType.of(InstanceClass.T3,InstanceSize.MEDIUM)
+        }),
+        readers:[ClusterInstance.provisioned('reader',{
+            instanceType: InstanceType.of(InstanceClass.T3,InstanceSize.MEDIUM)
+        })
+        ],
         vpc: props!.vpc ,
         vpcSubnets: {
             subnetType: SubnetType.PRIVATE_WITH_EGRESS

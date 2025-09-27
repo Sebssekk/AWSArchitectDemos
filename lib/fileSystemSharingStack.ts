@@ -1,11 +1,11 @@
 import { RemovalPolicy, Stack } from "aws-cdk-lib";
 import { FileSystem } from "aws-cdk-lib/aws-efs";
 import { Construct } from "constructs";
-import { VpcStackProps } from "./types";
+import { VpcAndSGStackProps } from "./types";
 import { Peer, Port, SecurityGroup, SubnetType } from "aws-cdk-lib/aws-ec2";
 
 export class FileSystemSharingStack extends Stack {
-  constructor(scope: Construct, id: string, props?: VpcStackProps) {
+  constructor(scope: Construct, id: string, props?: VpcAndSGStackProps) {
     super(scope, id, props);
 
     const efsPrivSG = new SecurityGroup(this, "EFSPrivSG", {
@@ -14,11 +14,11 @@ export class FileSystemSharingStack extends Stack {
     })
 
     efsPrivSG.addIngressRule(
-        Peer.securityGroupId(props!.vmSg!.securityGroupId),
+        Peer.securityGroupId(props!.sg!.securityGroupId),
         Port.NFS
     )
     efsPrivSG.addEgressRule(
-        Peer.securityGroupId(props!.vmSg!.securityGroupId),
+        Peer.securityGroupId(props!.sg!.securityGroupId),
         Port.allTraffic()
     )
 

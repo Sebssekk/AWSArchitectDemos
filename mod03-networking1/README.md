@@ -13,6 +13,8 @@ This repo will create for this module
         - Public one with igw as default
         - Private one with natgw as default
         - A Gateway endpoint for S3
+        - A Gateway endpoint for DynamoDB
+
 - a **VPC** called `demoIsolatedVpc` with
     - 1 subnet ISOLATED
     - 1 Routing table
@@ -32,7 +34,7 @@ This repo will create for this module
     - `isolated-ec2` a VM in the ISOLATED VPC with isolated sg and ssm Role  
 
 
-**TO CONNECT TO INSTANCES** is possible to use the sytem manager for ALL of them.  
+**TO CONNECT TO INSTANCES** is possible to use the sytem manager for Windows, private and isolated machine.  
 It's also possible 
 - For `pub-ec2` connect via ssh with  
     ```bash

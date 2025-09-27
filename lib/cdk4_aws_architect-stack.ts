@@ -11,6 +11,7 @@ import { FileSystemSharingStack } from "./fileSystemSharingStack";
 import { AuroraStack } from "./auroraStack";
 import { AsgAndLbStack } from "./asgAndLbStack";
 import { ContainerStack } from "./containersStack";
+import { Ec2Stack } from "./ec2Stack";
 
 export class Cdk4AwsArchitectStack extends Stack {
   constructor(scope: Construct, id: string, props?: StackProps) {
@@ -27,6 +28,11 @@ export class Cdk4AwsArchitectStack extends Stack {
     })
 
     // Module 4
+    const vmsStack = new Ec2Stack(this, "Ec2Stack", {
+      stackName: "AWSArchitect-Ec2Stack",
+      vpc1: netStack.demoVpc,
+      vpc2: netStack.isolatedVpc,
+    })
     new APIAndLambdasStack(this, "APIAndLambdasStack", {
       stackName: "AWSArchitect-APIAndLambdasStack",
     });
@@ -41,14 +47,14 @@ export class Cdk4AwsArchitectStack extends Stack {
     new FileSystemSharingStack(this, "EFSSharingStack", {
       stackName : "AWSArchitect-EFSSharingStack",
       vpc: netStack.demoVpc,
-      vmSg: netStack.demoPrivSG
+      sg: vmsStack.privSG
     })
 
     // Module 6
     new AuroraStack(this, "AuroraStack", {
       stackName: "AWSArchitect-AuroraStack",
       vpc: netStack.demoVpc,
-      vmSg: netStack.demoPrivSG
+      sg: vmsStack.privSG
     });
     new DynamoDBStack(this, "DynamoDBStack", {
       stackName: "AWSArchitect-DynamoDBStack",
@@ -58,14 +64,14 @@ export class Cdk4AwsArchitectStack extends Stack {
     new AsgAndLbStack(this, "AsgAndElbStack", {
       stackName: "AWSArchitect-AsgAndElbStack",
       vpc: netStack.demoVpc,
-      vmSg: netStack.demoPrivSG
+      sg: vmsStack.privSG
     });
 
     // Module 9
     new ContainerStack(this, "ContainerStack", {
       stackName: "AWSArchitect-ContainerStack",
       vpc: netStack.demoVpc,
-      vmSg: netStack.demoPrivSG
+      sg: vmsStack.privSG
     });
 
     // Module 11
