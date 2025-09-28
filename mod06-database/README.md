@@ -33,7 +33,7 @@ mysql -h <AURORA_ENDPOINT> -u demo -p # And digit password when prompted
 | marthar    | johns             | Martha    | Rivera   | ["management","software"]                   |  
 
 The table has `LoginAlias` as Partition Key and `ManagerLoginAlias` as Sort Key.    
-There is also a *Local Secondary Index* on field **FirstName**  
+There is also a *Global Secondary Index* on field **FirstName**  
 
 To test/demo this table is possible to explore it directly from the AWS Console OR from the `priv-ec2` from [Module 3](../mod03-networking1/README.md) via SSM.  
 The VM has the `aws` cli installed and a **role** with *DynamoDBFullAccess*.  

@@ -16,5 +16,6 @@ console.log("[*] OK")
 console.log("|------[CDK build Starting]------|")
 
 const app = new cdk.App();
-
 new Cdk4AwsArchitectStack(app, 'Cdk4AwsArchitectStack');
+
+console.log("[*] Happy AWS Teaching!")

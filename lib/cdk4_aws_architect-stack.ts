@@ -12,6 +12,7 @@ import { AuroraStack } from "./auroraStack";
 import { AsgAndLbStack } from "./asgAndLbStack";
 import { ContainerStack } from "./containersStack";
 import { Ec2Stack } from "./ec2Stack";
+import { DynamoSourceStack } from "./dynamoSourceStack";
 
 export class Cdk4AwsArchitectStack extends Stack {
   constructor(scope: Construct, id: string, props?: StackProps) {
@@ -56,8 +57,12 @@ export class Cdk4AwsArchitectStack extends Stack {
       vpc: netStack.demoVpc,
       sg: vmsStack.privSG
     });
+    const dynamoSourceStack = new DynamoSourceStack(this,"DynamoSourceStack", {
+      stackName: "AWSArchitect-DynamoSourceStack"
+    })
     new DynamoDBStack(this, "DynamoDBStack", {
       stackName: "AWSArchitect-DynamoDBStack",
+      sourceBucket: dynamoSourceStack.sourceBucket
     });
     
     // Module 7
