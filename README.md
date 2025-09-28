@@ -1,8 +1,8 @@
 # Welcome to this CDK project for AWS Solution Architect Associate
-
+![icon.png](./icon.png)
 ## **Abstract**
 
-_**Disclaimer**: Please note that executing this project could end in charging your account. Check what you're going to build_
+_**Disclaimer**: Please note that executing this project will end in charging your account. Check what you're going to build before running it._
 
 This project was created to support the delivery of a _Architecting on AWS_ course using cdk (TypeScript).  
 The **_cdk_** utility will create for you preconfigured services to enrich with live demos the explaination.
@@ -26,21 +26,20 @@ To fully use this project you'll need to configure
   ```bash
   $ npm install -g aws-cdk
   ```
-- **python/node/java runtimes** if you want to run every sdk example in the project  
+- **(Optional) python/node/java runtimes** if you want to run every sdk example in the project  
   Versions used during the creation:
 
   - Python 3.10.11
   - Node v24.4.1
   - Java openjdk 17
 
-- **Docker**  
-  (To build and upload a demo docker image to ***ECR***)
+- **(Optional) Docker** to build and upload a demo docker image to ***ECR***
 
 ## **Bootstrap Resources**
 
 Before the course start the project must be bootstrapped to prepare resources.
 
-1. Customize your Stack **modifying variables in `.env` file**
+1. Customize your Stack **modifying variables in [`.env`](./.env) file**
 
 - _NICKNAME_ - to have a personalization in buckets name
 - _EMAIL_ - to use as a subscription of SNS topic
@@ -64,6 +63,8 @@ Before the course start the project must be bootstrapped to prepare resources.
    ```bash
    $ cdk deploy --all
    ```
+   ⚠️**NOTE**⚠️  
+   *This command will start creating resources and using your billing/credits.*
 5. An email will be sent to the configured address in _.env_ file.  
    Check it and confirm the subscription in order to receive future SNS Topic messagges
 
@@ -86,7 +87,6 @@ To destroy everything that was created by cdk
 $ cdk destroy --all
 ```
 
-Moreover some resources were created during module 3 and module 6. **Remember to clean them!**
+Any other resource created manually during the course (like in [Module 1 examples](./mod01-aws_interaction/README.md)) won't be seen by cdk and you'll need to delete them manually.  
+⚠️⚠️⚠️ **Remember to clean them!** ⚠️⚠️⚠️
 
-
-Any other resource created manually during the course won't be seen by cdk and you'll need to delete them manually
