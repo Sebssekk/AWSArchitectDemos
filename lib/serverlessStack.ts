@@ -1,11 +1,11 @@
 import { Stack, StackProps, Duration, RemovalPolicy } from "aws-cdk-lib";
 import { Construct } from "constructs";
-import * as sfn_task from "aws-cdk-lib/aws-stepfunctions-tasks";
-import * as sfn from "aws-cdk-lib/aws-stepfunctions";
-import { Runtime, Tracing } from "aws-cdk-lib/aws-lambda";
-import * as apigateway from "aws-cdk-lib/aws-apigateway";
-import * as logs from "aws-cdk-lib/aws-logs";
-import * as lambda from "aws-cdk-lib/aws-lambda";
+import { CallAwsService, LambdaInvoke } from "aws-cdk-lib/aws-stepfunctions-tasks";
+import { Chain, Choice, Condition, DefinitionBody, Fail, JsonPath, LogLevel, Parallel, Pass, Result, StateMachine, StateMachineType } from "aws-cdk-lib/aws-stepfunctions";
+import { Code, Runtime, Tracing } from "aws-cdk-lib/aws-lambda";
+import { StepFunctionsRestApi } from "aws-cdk-lib/aws-apigateway";
+import { LogGroup } from "aws-cdk-lib/aws-logs";
+import {Function} from "aws-cdk-lib/aws-lambda";
 import { Queue } from "aws-cdk-lib/aws-sqs";
 import { SqsEventSource } from "aws-cdk-lib/aws-lambda-event-sources";
 
@@ -16,10 +16,10 @@ export class ServerlessStack extends Stack {
     // Step Function
 
     // https://github.com/aws-samples/step-functions-workflows-collection/tree/main/parallel-translate
-    const inputData = new sfn.Pass(this, "ToTralsateData", {
-      result: sfn.Result.fromObject({ data: sfn.JsonPath.stringAt("$.data") }),
+    const inputData = new Pass(this, "ToTralsateData", {
+      result: Result.fromObject({ data: JsonPath.stringAt("$.data") }),
     });
-    const translateToSpanish = new sfn_task.CallAwsService(
+    const translateToSpanish = new CallAwsService(
       this,
       "TraslateToSpanish",
       {
@@ -28,13 +28,13 @@ export class ServerlessStack extends Stack {
         parameters: {
           SourceLanguageCode: "en",
           TargetLanguageCode: "es",
-          Text: sfn.JsonPath.stringAt("$.data"),
+          Text: JsonPath.stringAt("$.data"),
         },
         iamResources: ["*"],
       }
     );
 
-    const translateToItalian = new sfn_task.CallAwsService(
+    const translateToItalian = new CallAwsService(
       this,
       "TraslateToItalian",
       {
@@ -43,13 +43,13 @@ export class ServerlessStack extends Stack {
         parameters: {
           SourceLanguageCode: "en",
           TargetLanguageCode: "it",
-          Text: sfn.JsonPath.stringAt("$.data"),
+          Text: JsonPath.stringAt("$.data"),
         },
         iamResources: ["*"],
       }
     );
 
-    const translateToFrench = new sfn_task.CallAwsService(
+    const translateToFrench = new CallAwsService(
       this,
       "TraslateToFrench",
       {
@@ -58,21 +58,21 @@ export class ServerlessStack extends Stack {
         parameters: {
           SourceLanguageCode: "en",
           TargetLanguageCode: "fr",
-          Text: sfn.JsonPath.stringAt("$.data"),
+          Text: JsonPath.stringAt("$.data"),
         },
         iamResources: ["*"],
       }
     );
 
-    const parallel = new sfn.Parallel(this, "ParallelTranslate")
+    const parallel = new Parallel(this, "ParallelTranslate")
       .branch(inputData)
       .branch(translateToItalian)
       .branch(translateToSpanish)
       .branch(translateToFrench);
 
-    new sfn.StateMachine(this, "TranslateSfn", {
+    new StateMachine(this, "TranslateSfn", {
       stateMachineName: "ParallelTranslate",
-      definitionBody: sfn.DefinitionBody.fromChainable(parallel),
+      definitionBody: DefinitionBody.fromChainable(parallel),
       timeout: Duration.minutes(5),
       tracingEnabled: true,
     });
@@ -86,105 +86,105 @@ export class ServerlessStack extends Stack {
       tracing: Tracing.ACTIVE,
     };
 
-    const assignCaseLambda = new lambda.Function(this, "assignCaseFunction", {
+    const assignCaseLambda = new Function(this, "assignCaseFunction", {
       ...lambdaProps,
       handler: "assign-case.handler",
       functionName: "sfn_assignCaseLambda",
-      code: lambda.Code.fromAsset(`${lambdaPath}/assign-case`),
+      code: Code.fromAsset(`${lambdaPath}/assign-case`),
     });
 
-    const closeCaseLambda = new lambda.Function(this, "closeCaseFunction", {
+    const closeCaseLambda = new Function(this, "closeCaseFunction", {
       ...lambdaProps,
       handler: "close-case.handler",
       functionName: "sfn_closeCaseLambda",
-      code: lambda.Code.fromAsset(`${lambdaPath}/close-case`),
+      code: Code.fromAsset(`${lambdaPath}/close-case`),
     });
 
-    const escalateCaseLambda = new lambda.Function(
+    const escalateCaseLambda = new Function(
       this,
       "escalateCaseFunction",
       {
         ...lambdaProps,
         handler: "escalate-case.handler",
         functionName: "sfn_escalateCaseLambda",
-        code: lambda.Code.fromAsset(`${lambdaPath}/escalate-case`),
+        code: Code.fromAsset(`${lambdaPath}/escalate-case`),
       }
     );
 
-    const openCaseLambda = new lambda.Function(this, "openCaseFunction", {
+    const openCaseLambda = new Function(this, "openCaseFunction", {
       ...lambdaProps,
       handler: "open-case.handler",
       functionName: "sfn_openCaseLambda",
-      code: lambda.Code.fromAsset(`${lambdaPath}/open-case`),
+      code: Code.fromAsset(`${lambdaPath}/open-case`),
     });
 
-    const workOnCaseLambda = new lambda.Function(this, "workOnCaseFunction", {
+    const workOnCaseLambda = new Function(this, "workOnCaseFunction", {
       ...lambdaProps,
       handler: "work-on-case.handler",
       functionName: "sfn_workOnCaseLambda",
-      code: lambda.Code.fromAsset(`${lambdaPath}/work-on-case`),
+      code: Code.fromAsset(`${lambdaPath}/work-on-case`),
     });
 
-    const assignCase = new sfn_task.LambdaInvoke(this, "Assign Case", {
+    const assignCase = new LambdaInvoke(this, "Assign Case", {
       lambdaFunction: assignCaseLambda,
       outputPath: "$.Payload",
     });
 
-    const closeCase = new sfn_task.LambdaInvoke(this, "Close Case", {
+    const closeCase = new LambdaInvoke(this, "Close Case", {
       lambdaFunction: closeCaseLambda,
       outputPath: "$.Payload",
     });
 
-    const escalateCase = new sfn_task.LambdaInvoke(this, "Escalate Case", {
+    const escalateCase = new LambdaInvoke(this, "Escalate Case", {
       lambdaFunction: escalateCaseLambda,
       outputPath: "$.Payload",
     });
 
-    const openCase = new sfn_task.LambdaInvoke(this, "Open Case", {
+    const openCase = new LambdaInvoke(this, "Open Case", {
       lambdaFunction: openCaseLambda,
       outputPath: "$.Payload",
     });
 
-    const workOnCase = new sfn_task.LambdaInvoke(this, "Work On Case", {
+    const workOnCase = new LambdaInvoke(this, "Work On Case", {
       lambdaFunction: workOnCaseLambda,
       outputPath: "$.Payload",
     });
 
-    const jobFailed = new sfn.Fail(this, "Fail", {
+    const jobFailed = new Fail(this, "Fail", {
       cause: "Engage Tier 2 Support",
     });
 
-    const isComplete = new sfn.Choice(this, "Is Case Resolved");
+    const isComplete = new Choice(this, "Is Case Resolved");
 
-    const chain = sfn.Chain.start(openCase)
+    const chain = Chain.start(openCase)
       .next(assignCase)
       .next(workOnCase)
       .next(
         isComplete
-          .when(sfn.Condition.numberEquals("$.Status", 1), closeCase)
+          .when(Condition.numberEquals("$.Status", 1), closeCase)
           .when(
-            sfn.Condition.numberEquals("$.Status", 0),
+            Condition.numberEquals("$.Status", 0),
             escalateCase.next(jobFailed)
           )
       );
 
-    const simpleWorkflowLogGroup = new logs.LogGroup(this, "SWFLogs", {
+    const simpleWorkflowLogGroup = new LogGroup(this, "SWFLogs", {
       logGroupName: "sfn_simpleWorkflow_log",
       removalPolicy: RemovalPolicy.DESTROY,
     });
 
-    const simpleCaseWorkflow = new sfn.StateMachine(this, "StateMachine", {
+    const simpleCaseWorkflow = new StateMachine(this, "StateMachine", {
       stateMachineName: "SimpleCaseWorkflow",
-      definitionBody: sfn.DefinitionBody.fromChainable(chain),
+      definitionBody: DefinitionBody.fromChainable(chain),
       tracingEnabled: true,
-      stateMachineType: sfn.StateMachineType.EXPRESS,
+      stateMachineType: StateMachineType.EXPRESS,
       logs: {
-        level: sfn.LogLevel.ALL,
+        level: LogLevel.ALL,
         destination: simpleWorkflowLogGroup,
       },
     });
 
-    new apigateway.StepFunctionsRestApi(this, "SimpleCaseWorkflowAPI", {
+    new StepFunctionsRestApi(this, "SimpleCaseWorkflowAPI", {
       restApiName: "simpleCaseWorkflowApi",
       deploy: true,
       stateMachine: simpleCaseWorkflow,
@@ -195,11 +195,11 @@ export class ServerlessStack extends Stack {
 
 
     // SQS + Lambda
-    const pieMakerFunction = new lambda.Function(this, "PieMakerFunc", {
-      runtime: lambda.Runtime.PYTHON_3_12,
-      code: lambda.Code.fromAsset("./mod11-serverless/sqs/pieMakerFunction"),
+    const pieMakerFunction = new Function(this, "PieMakerFunc", {
+      runtime: Runtime.PYTHON_3_12,
+      code: Code.fromAsset("./mod11-serverless/sqs/pieMakerFunction"),
       handler: "app.lambda_handler",
-      tracing: lambda.Tracing.ACTIVE,
+      tracing: Tracing.ACTIVE,
       functionName: "pieMakerFunction",
     });
 

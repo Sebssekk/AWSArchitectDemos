@@ -1,4 +1,4 @@
-import { Stack } from "aws-cdk-lib";
+import { Stack, Tags } from "aws-cdk-lib";
 import { Construct } from "constructs";
 import { VpcsStackProps } from "./types";
 import { SecurityGroup, Peer, Port, KeyPair, KeyPairFormat, KeyPairType, Instance, InstanceClass, InstanceSize, InstanceType, MachineImage, SubnetType, UserData, WindowsVersion } from "aws-cdk-lib/aws-ec2";
@@ -68,15 +68,17 @@ export class Ec2Stack extends Stack {
     })
     
 
-    const ssmRole = new Role(this, "SSMRole", {
-        roleName: "demo-ssm-role",
+    const demoInstRole = new Role(this, "SSMRole", {
+        roleName: "demo-inst-role",
         assumedBy: new ServicePrincipal("ec2.amazonaws.com"),
         managedPolicies: [
             ManagedPolicy.fromAwsManagedPolicyName('CloudWatchAgentServerPolicy'),
             ManagedPolicy.fromAwsManagedPolicyName('AmazonSSMManagedInstanceCore'),
             ManagedPolicy.fromAwsManagedPolicyName('AmazonS3FullAccess'),
+            ManagedPolicy.fromAwsManagedPolicyName('AmazonDynamoDBFullAccess_v2'),
         ]
     })
+
     new Instance(this, "DemoInstancePub", {
         instanceName: "pub-ec2",
         vpc: props!.vpc1,
@@ -105,7 +107,7 @@ export class Ec2Stack extends Stack {
         machineImage: MachineImage.latestWindows(WindowsVersion.WINDOWS_SERVER_2025_ENGLISH_CORE_BASE,),
         vpcSubnets: { subnetType: SubnetType.PUBLIC },
         securityGroup: this.pubSG,
-        role: ssmRole,
+        role: demoInstRole,
         ssmSessionPermissions: true,
         keyPair: winKey,
         userData: ssmUserDataWin
@@ -126,7 +128,7 @@ export class Ec2Stack extends Stack {
         machineImage: MachineImage.latestAmazonLinux2023(),
         vpcSubnets: { subnetType: SubnetType.PRIVATE_WITH_EGRESS },
         securityGroup: this.privSG,
-        role: ssmRole,
+        role: demoInstRole,
         ssmSessionPermissions: true,
         userData: ssmUserData,
     })
@@ -139,7 +141,7 @@ export class Ec2Stack extends Stack {
         machineImage: MachineImage.latestAmazonLinux2023(),
         vpcSubnets: { subnetType: SubnetType.PRIVATE_ISOLATED },
         securityGroup: this.isolatedSG,
-        role: ssmRole,
+        role: demoInstRole,
         ssmSessionPermissions: true,
         userData: ssmUserData,
     })

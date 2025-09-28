@@ -1,13 +1,13 @@
 import { Duration, Stack } from "aws-cdk-lib";
 import { Construct } from "constructs";
-import { VpcStackProps } from "./types";
+import { VpcAndSGStackProps } from "./types";
 import { AutoScalingGroup, StepScalingPolicy } from "aws-cdk-lib/aws-autoscaling";
 import { InstanceClass, InstanceSize, InstanceType, LaunchTemplate, MachineImage, Peer, Port, Protocol, SecurityGroup, SubnetType, UserData } from "aws-cdk-lib/aws-ec2";
 import { Metric } from "aws-cdk-lib/aws-cloudwatch";
 import { ApplicationListener, ApplicationLoadBalancer, ApplicationProtocol } from "aws-cdk-lib/aws-elasticloadbalancingv2";
 
 export class AsgAndLbStack extends Stack {
-  constructor(scope: Construct, id: string, props?: VpcStackProps) {
+  constructor(scope: Construct, id: string, props?: VpcAndSGStackProps) {
     super(scope, id, props);
 
     const lbSg = new SecurityGroup(this, "LbSG", {

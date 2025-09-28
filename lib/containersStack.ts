@@ -1,14 +1,13 @@
-import { RemovalPolicy, Stack } from "aws-cdk-lib";
+import { Stack } from "aws-cdk-lib";
 import { Construct } from "constructs";
-import { VpcStackProps } from "./types";
+import { VpcAndSGStackProps } from "./types";
 import { ContainerImage, Ec2Service, Ec2TaskDefinition, Cluster as ECSCluster, EcsOptimizedImage, Protocol} from "aws-cdk-lib/aws-ecs";
 import { InstanceClass, InstanceSize, InstanceType, SecurityGroup } from "aws-cdk-lib/aws-ec2";
-import { Repository } from "aws-cdk-lib/aws-ecr";
 import { DockerImageAsset } from "aws-cdk-lib/aws-ecr-assets";
 import { ApplicationListener, ApplicationLoadBalancer, ApplicationProtocol } from "aws-cdk-lib/aws-elasticloadbalancingv2";
 
 export class ContainerStack extends Stack {
-  constructor(scope: Construct, id: string, props?: VpcStackProps) {
+  constructor(scope: Construct, id: string, props?: VpcAndSGStackProps) {
     super(scope, id, props);
 
     const nginxRepo = new DockerImageAsset(this, "NginxDOckerImage", {

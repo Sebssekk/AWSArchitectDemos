@@ -1,28 +1,28 @@
 import { Stack, StackProps, RemovalPolicy } from "aws-cdk-lib";
 import { Construct } from "constructs";
-import * as iam from "aws-cdk-lib/aws-iam";
-import * as s3 from "aws-cdk-lib/aws-s3";
-import * as s3deploy from "aws-cdk-lib/aws-s3-deployment";
-import * as s3n from "aws-cdk-lib/aws-s3-notifications";
-import * as lambda from "aws-cdk-lib/aws-lambda";
-import * as sns from "aws-cdk-lib/aws-sns";
-import * as sqs from "aws-cdk-lib/aws-sqs";
+import { ManagedPolicy, Role, ServicePrincipal } from "aws-cdk-lib/aws-iam";
+import { Bucket, EventType } from "aws-cdk-lib/aws-s3";
+import { BucketDeployment, Source } from "aws-cdk-lib/aws-s3-deployment";
+import { LambdaDestination, SnsDestination } from "aws-cdk-lib/aws-s3-notifications";
+import { Code, Function, Runtime } from "aws-cdk-lib/aws-lambda";
+import { Subscription, SubscriptionProtocol, Topic } from "aws-cdk-lib/aws-sns";
+import { Queue } from "aws-cdk-lib/aws-sqs";
 
 export class S3NotificationStack extends Stack {
   constructor(scope: Construct, id: string, props?: StackProps) {
     super(scope, id, props);
     // S3 Object notication
-    const translatorFnRole = new iam.Role(this, "TranslatorFnRole", {
+    const translatorFnRole = new Role(this, "TranslatorFnRole", {
       roleName: "translator-fn-role",
-      assumedBy: new iam.ServicePrincipal("lambda.amazonaws.com"),
+      assumedBy: new ServicePrincipal("lambda.amazonaws.com"),
       managedPolicies: [
-        iam.ManagedPolicy.fromAwsManagedPolicyName("AmazonS3FullAccess"),
-        iam.ManagedPolicy.fromAwsManagedPolicyName("CloudWatchFullAccess"),
-        iam.ManagedPolicy.fromAwsManagedPolicyName("TranslateFullAccess"),
+        ManagedPolicy.fromAwsManagedPolicyName("AmazonS3FullAccess"),
+        ManagedPolicy.fromAwsManagedPolicyName("CloudWatchFullAccess"),
+        ManagedPolicy.fromAwsManagedPolicyName("TranslateFullAccess"),
       ],
     });
 
-    const translatingBucket = new s3.Bucket(this, "TranslatingBucket", {
+    const translatingBucket = new Bucket(this, "TranslatingBucket", {
       bucketName: `${
         process.env.NICKNAME
       }-demo-translating-bucket-${Math.floor(Math.random() * 100000)}`,
@@ -30,13 +30,13 @@ export class S3NotificationStack extends Stack {
       autoDeleteObjects: true,
     });
 
-    const translatingFunction = new lambda.Function(
+    const translatingFunction = new Function(
       this,
       "TranslatingFunction",
       {
-        runtime: lambda.Runtime.NODEJS_LATEST,
+        runtime: Runtime.NODEJS_LATEST,
         handler: "main.handler",
-        code: lambda.Code.fromAsset("./mod05-storage/translate-lambda"),
+        code: Code.fromAsset("./mod05-storage/translate-lambda"),
         environment: {
           SourceLanguageCode: "en",
           TargetLanguageCode: "it",
@@ -48,15 +48,15 @@ export class S3NotificationStack extends Stack {
     );
 
     translatingBucket.addEventNotification(
-      s3.EventType.OBJECT_CREATED,
-      new s3n.LambdaDestination(translatingFunction),
+      EventType.OBJECT_CREATED,
+      new LambdaDestination(translatingFunction),
       {
         suffix: ".txt",
         prefix: "toTranslate/",
       }
     );
 
-    const translateCompleteTopic = new sns.Topic(
+    const translateCompleteTopic = new Topic(
       this,
       "TranslateCompleteTopic",
       {
@@ -65,38 +65,38 @@ export class S3NotificationStack extends Stack {
       }
     );
 
-    new sns.Subscription(this, "MyEmailSub", {
-      protocol: sns.SubscriptionProtocol.EMAIL,
+    new Subscription(this, "MyEmailSub", {
+      protocol: SubscriptionProtocol.EMAIL,
       endpoint: `${process.env.EMAIL}`,
       topic: translateCompleteTopic,
     });
     
-    const demoQueue = new sqs.Queue(this, "DemoQueue", {
+    const demoQueue = new Queue(this, "DemoQueue", {
       queueName: "demo-queue",
       removalPolicy: RemovalPolicy.DESTROY
     })
 
-    new sns.Subscription(this, "SQSSub", {
-      protocol: sns.SubscriptionProtocol.SQS,
+    new Subscription(this, "SQSSub", {
+      protocol: SubscriptionProtocol.SQS,
       topic: translateCompleteTopic,
       endpoint: demoQueue.queueArn
     })
 
  
     translatingBucket.addEventNotification(
-      s3.EventType.OBJECT_CREATED,
-      new s3n.SnsDestination(translateCompleteTopic),
+      EventType.OBJECT_CREATED,
+      new SnsDestination(translateCompleteTopic),
       {
         suffix: ".txt",
         prefix: "translated/",
       }
     );
-    const translateDeployment = new s3deploy.BucketDeployment(
+    const translateDeployment = new BucketDeployment(
       this,
       "DeployTranslateFolder",
       {
         sources: [
-          s3deploy.Source.data("toTranslate/hello.txt", "hello, world!"),
+          Source.data("toTranslate/hello.txt", "hello, world!"),
         ],
         destinationBucket: translatingBucket,
       }
