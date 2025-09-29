@@ -8,10 +8,42 @@ import { Function, Architecture, Code, LayerVersion, Runtime, Tracing } from "aw
 import { AccessLogFormat, LambdaIntegration, LogGroupLogDestination, RestApi } from "aws-cdk-lib/aws-apigateway";
 import { LogGroup } from "aws-cdk-lib/aws-logs";
 import { AwsCliLayer } from "aws-cdk-lib/lambda-layer-awscli";
+import { Bucket } from "aws-cdk-lib/aws-s3";
+import { Role, ServicePrincipal, ManagedPolicy, PolicyDocument } from "aws-cdk-lib/aws-iam";
 
 export class APIAndLambdasStack extends Stack {
   constructor(scope: Construct, id: string, props?: StackProps) {
     super(scope, id, props);
+
+    const snackTargetBucket = new Bucket(this, 'FuntionTargetBucket',{
+        bucketName: `${process.env.NICKNAME}-snacks-${Math.floor(Math.random() * 100000)}`,
+        removalPolicy: RemovalPolicy.DESTROY,
+        autoDeleteObjects: true,
+    });
+
+    const snackfuncRole = new Role(this, "SSMRole", {
+            roleName: "demo-inst-role",
+            assumedBy: new ServicePrincipal("lambda.amazonaws.com"),
+            managedPolicies: [
+                ManagedPolicy.fromAwsManagedPolicyName('AWSLambdaBasicExecutionRole'),
+                ManagedPolicy.fromAwsManagedPolicyName('AmazonS3FullAccess'),
+            ],
+            inlinePolicies:{
+              "xRayPolicy": PolicyDocument.fromJson({             
+                "Version": "2012-10-17",
+                "Statement": [
+                    {
+                        "Action": [
+                            "xray:PutTelemetryRecords",
+                            "xray:PutTraceSegments"
+                        ],
+                        "Resource": "*",
+                        "Effect": "Allow"
+                    }
+                ]
+              })
+            }
+        }) 
 
     // --- snackGenerator Function ---
 
@@ -33,10 +65,14 @@ export class APIAndLambdasStack extends Stack {
     const snackGeneratorFunc = new Function(this, "SnackgenFunc", {
       functionName: "snackGeneratorFunction",
       runtime: Runtime.NODEJS_LATEST,
+      role: snackfuncRole,
       handler: "index.handler",
       code: Code.fromAsset("./mod04-compute/snackGenerator"),
       tracing: Tracing.ACTIVE,
       layers: [demoLayer, new AwsCliLayer(this, "AWSCliLayer")],
+      environment:{
+        targetBucket: snackTargetBucket.bucketName
+      }
     });
 
     const snackGenApi = new RestApi(this, "SnackGenApi", {

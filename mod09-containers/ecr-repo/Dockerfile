@@ -6,7 +6,7 @@ FROM nginx:latest
 # COPY nginx.conf /etc/nginx/nginx.conf
 
 # Copy website files to container
-# COPY ./html /usr/share/nginx/html
+COPY ./html /usr/share/nginx/html
 
 # Expose port 80
 EXPOSE 80

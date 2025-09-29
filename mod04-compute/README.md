@@ -12,7 +12,8 @@ All resources (*EC2 Instances*) from [Module 3](../mod03-networking1/README.md)
 - an **API Gateway** called `SnackGenApi` with logging enabled
 
 
-The API Gateway exposes the Lambda function via a `GET` method at the root endpoint.
+The API Gateway exposes the Lambda function via a `GET` method at the root endpoint.  
+Whenerver the lambda is triggered it also writes a json file in a bucket called `<NICKNAME>-snacks-<RANDOM_NUM>`
 
 ---  
 **Moreover** The Lambda function has a *Layer*. Every time the Lambda is invoked the function will print in the log the content of `/opt` folder where layers are mounted

@@ -1,10 +1,11 @@
-import { Stack } from "aws-cdk-lib";
+import { Stack, Tags } from "aws-cdk-lib";
 import { Construct } from "constructs";
 import { VpcAndSGStackProps } from "./types";
 import { ContainerImage, Ec2Service, Ec2TaskDefinition, Cluster as ECSCluster, EcsOptimizedImage, Protocol} from "aws-cdk-lib/aws-ecs";
 import { InstanceClass, InstanceSize, InstanceType, SecurityGroup } from "aws-cdk-lib/aws-ec2";
 import { DockerImageAsset } from "aws-cdk-lib/aws-ecr-assets";
 import { ApplicationListener, ApplicationLoadBalancer, ApplicationProtocol } from "aws-cdk-lib/aws-elasticloadbalancingv2";
+import { AutoScalingGroup } from "aws-cdk-lib/aws-autoscaling";
 
 export class ContainerStack extends Stack {
   constructor(scope: Construct, id: string, props?: VpcAndSGStackProps) {
@@ -15,6 +16,8 @@ export class ContainerStack extends Stack {
       assetName: "demo-nginx",
       displayName: "demo-nginx"
     })
+
+    Tags.of(nginxRepo.repository).add("Name", "demo-nginx")
 
     const ecsCluster = new ECSCluster(this, "DemoECS", {
       clusterName: "demo-ecs-cluster",
@@ -27,6 +30,7 @@ export class ContainerStack extends Stack {
         maxCapacity: 3
       }
     })
+    Tags.of(ecsCluster.autoscalingGroup as AutoScalingGroup).add("Name", "demo-ecs-cluster-asg")
 
     const taskDefinition = new Ec2TaskDefinition(this, 'DemoTaskDef');
     taskDefinition.addContainer("DemoContainer", {
@@ -66,6 +70,7 @@ export class ContainerStack extends Stack {
       port: 80,
       protocol: ApplicationProtocol.HTTP,
       targets: [ecsService],
+      targetGroupName: "nginx-targets",
     })
 
   }
