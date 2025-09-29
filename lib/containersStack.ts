@@ -1,4 +1,4 @@
-import { Stack, Tags } from "aws-cdk-lib";
+import { RemovalPolicy, Stack, Tags } from "aws-cdk-lib";
 import { Construct } from "constructs";
 import { VpcAndSGStackProps } from "./types";
 import { ContainerImage, Ec2Service, Ec2TaskDefinition, Cluster as ECSCluster, EcsOptimizedImage, Protocol} from "aws-cdk-lib/aws-ecs";
@@ -6,6 +6,7 @@ import { InstanceClass, InstanceSize, InstanceType, SecurityGroup } from "aws-cd
 import { DockerImageAsset } from "aws-cdk-lib/aws-ecr-assets";
 import { ApplicationListener, ApplicationLoadBalancer, ApplicationProtocol } from "aws-cdk-lib/aws-elasticloadbalancingv2";
 import { AutoScalingGroup } from "aws-cdk-lib/aws-autoscaling";
+import { Repository } from "aws-cdk-lib/aws-ecr";
 
 export class ContainerStack extends Stack {
   constructor(scope: Construct, id: string, props?: VpcAndSGStackProps) {
@@ -14,10 +15,11 @@ export class ContainerStack extends Stack {
     const nginxRepo = new DockerImageAsset(this, "NginxDOckerImage", {
       directory: "./mod09-containers/ecr-repo",
       assetName: "demo-nginx",
-      displayName: "demo-nginx"
+      displayName: "demo-nginx",
     })
 
-    Tags.of(nginxRepo.repository).add("Name", "demo-nginx")
+    Tags.of(nginxRepo.repository as Repository).add("Name", "demo-nginx");
+    (nginxRepo.repository as Repository).applyRemovalPolicy(RemovalPolicy.DESTROY);
 
     const ecsCluster = new ECSCluster(this, "DemoECS", {
       clusterName: "demo-ecs-cluster",

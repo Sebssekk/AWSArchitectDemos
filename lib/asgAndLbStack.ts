@@ -42,7 +42,7 @@ export class AsgAndLbStack extends Stack {
         'sudo systemctl start amazon-ssm-agent',
         'sudo dnf install -y docker',
         'sudo systemctl start docker',
-        'sudo docker run -e IP=$( hostname -I ) -e HOSTNAME=$( hostname ) -p 80:3000 -d sebssekk/hello-app'
+        'sudo docker run -e VM_IP=$( hostname -I | cut -f 1 -d " " ) -e VM_HOSTNAME=$( hostname ) -p 80:3000 -d sebssekk/hello-app'
     )
     const template = new LaunchTemplate(this, "DemoLaunchTemplate", {
       launchTemplateName: "demo-launch-template",
