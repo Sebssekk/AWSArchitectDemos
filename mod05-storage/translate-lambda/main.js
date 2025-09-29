@@ -1,7 +1,9 @@
 
 const { S3Client, GetObjectCommand, PutObjectCommand } = require('@aws-sdk/client-s3')
-const s3 = new S3Client({ region: process.env.AWS_REGION })
+const {captureAWSv3Client} = require('aws-xray-sdk')
+const _s3 = new S3Client({ region: process.env.AWS_REGION })
 
+const s3 = captureAWSv3Client(_s3)
 const { translateText } = require('./translate')
 
 // Translate and save output to S3
