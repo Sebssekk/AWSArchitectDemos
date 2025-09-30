@@ -1,6 +1,6 @@
 
 # Use official Nginx base image
-FROM nginx:latest
+FROM public.ecr.aws/nginx/nginx:latest
 
 # Copy custom nginx configuration if needed
 # COPY nginx.conf /etc/nginx/nginx.conf

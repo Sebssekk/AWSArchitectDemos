@@ -13,6 +13,7 @@ import { AsgAndLbStack } from "./asgAndLbStack";
 import { ContainerStack } from "./containersStack";
 import { Ec2Stack } from "./ec2Stack";
 import { DynamoSourceStack } from "./dynamoSourceStack";
+import { BuildPipelineStack } from "./buildPipelineStack";
 
 export class Cdk4AwsArchitectStack extends Stack {
   constructor(scope: Construct, id: string, props?: StackProps) {
@@ -73,10 +74,14 @@ export class Cdk4AwsArchitectStack extends Stack {
     });
 
     // Module 9
+    const pipelineStack = new BuildPipelineStack(this, "BuildPipelineStack",{
+      stackName: "AWSArchitect-BuildPipelineStack",
+    })
     new ContainerStack(this, "ContainerStack", {
       stackName: "AWSArchitect-ContainerStack",
       vpc: netStack.demoVpc,
-      sg: vmsStack.privSG
+      sg: vmsStack.privSG,
+      ecrRepo: pipelineStack.ecrRepo,
     });
 
     // Module 11

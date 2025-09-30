@@ -78,6 +78,9 @@ A step by step guide on how to use demos during the course modules
 ### **[Module 4 - Compute](./mod04-compute/README.md)**
 ### **[Module 5 - Storage Solutions](./mod05-storage/README.md)**
 ### **[Module 6 - Database Solutions](./mod06-database/README.md)**
+### **[Module 7 - Monitoring & Scaling](./mod07-autoscaling/README.md)**
+### **[Module 8 - Automation](./mod08-automation/README.md)**
+### **[Module 9 - Containers](./mod09-containers/README.md)**
 
 ## **Clean up**
 

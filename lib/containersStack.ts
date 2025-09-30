@@ -1,25 +1,20 @@
 import { RemovalPolicy, Stack, Tags } from "aws-cdk-lib";
 import { Construct } from "constructs";
-import { VpcAndSGStackProps } from "./types";
+import { ECRStackProps, VpcAndSGStackProps } from "./types";
 import { ContainerImage, Ec2Service, Ec2TaskDefinition, Cluster as ECSCluster, EcsOptimizedImage, Protocol} from "aws-cdk-lib/aws-ecs";
 import { InstanceClass, InstanceSize, InstanceType, SecurityGroup } from "aws-cdk-lib/aws-ec2";
 import { DockerImageAsset } from "aws-cdk-lib/aws-ecr-assets";
 import { ApplicationListener, ApplicationLoadBalancer, ApplicationProtocol } from "aws-cdk-lib/aws-elasticloadbalancingv2";
 import { AutoScalingGroup } from "aws-cdk-lib/aws-autoscaling";
-import { Repository } from "aws-cdk-lib/aws-ecr";
+import { Repository as ECRRepository} from "aws-cdk-lib/aws-ecr";
+import { Code, Repository } from "aws-cdk-lib/aws-codecommit";
+import { Project, Source } from "aws-cdk-lib/aws-codebuild";
+import { Artifact, Pipeline, ProviderType } from "aws-cdk-lib/aws-codepipeline";
+import { CodeBuildAction, CodeCommitSourceAction, CodeDeployEcsDeployAction, EcsDeployAction } from "aws-cdk-lib/aws-codepipeline-actions";
 
 export class ContainerStack extends Stack {
-  constructor(scope: Construct, id: string, props?: VpcAndSGStackProps) {
+  constructor(scope: Construct, id: string, props?: VpcAndSGStackProps & ECRStackProps) {
     super(scope, id, props);
-
-    const nginxRepo = new DockerImageAsset(this, "NginxDOckerImage", {
-      directory: "./mod09-containers/ecr-repo",
-      assetName: "demo-nginx",
-      displayName: "demo-nginx",
-    })
-
-    Tags.of(nginxRepo.repository as Repository).add("Name", "demo-nginx");
-    (nginxRepo.repository as Repository).applyRemovalPolicy(RemovalPolicy.DESTROY);
 
     const ecsCluster = new ECSCluster(this, "DemoECS", {
       clusterName: "demo-ecs-cluster",
@@ -36,7 +31,7 @@ export class ContainerStack extends Stack {
 
     const taskDefinition = new Ec2TaskDefinition(this, 'DemoTaskDef');
     taskDefinition.addContainer("DemoContainer", {
-      image: ContainerImage.fromDockerImageAsset(nginxRepo),
+      image: ContainerImage.fromEcrRepository(props!.ecrRepo, "latest"),
       portMappings: [
         {
           protocol: Protocol.TCP,
@@ -49,7 +44,6 @@ export class ContainerStack extends Stack {
       serviceName: "nginx",
       cluster: ecsCluster,
       taskDefinition: taskDefinition,
-
     })
 
     const lbSg = new SecurityGroup(this, "ECSLbSG", {

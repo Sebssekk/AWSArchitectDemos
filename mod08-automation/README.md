@@ -1,2 +1,6 @@
-# **TODO**
-Write a good README explaining what you have in this folder and how to use it for this module...
+# **Automation**
+
+This folder will help you demoing some Automation features in AWS.
+
+## **Content**
+This repo will create for this module
