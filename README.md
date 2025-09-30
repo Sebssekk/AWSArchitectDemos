@@ -91,6 +91,6 @@ To destroy everything that was created by cdk
 $ cdk destroy --all
 ```
 
-Any other resource created manually during the course (like in [Module 1 examples](./mod01-aws_interaction/README.md)) won't be seen by cdk and you'll need to delete them manually.  
+Any other resource created manually during the course (like in [Module 1 examples](./mod01-aws_interaction/README.md) or in [Module 9](./mod09-containers/README.md)) won't be seen by cdk and you'll need to delete them manually.  
 ⚠️⚠️⚠️ **Remember to clean them!** ⚠️⚠️⚠️
 
