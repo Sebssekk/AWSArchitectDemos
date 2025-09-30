@@ -82,6 +82,7 @@ A step by step guide on how to use demos during the course modules
 ### **[Module 8 - Automation](./mod08-automation/README.md)**
 ### **[Module 9 - Containers](./mod09-containers/README.md)**
 ### **[Module 10 - Networking 2](./mod10-networking2/README.md)**
+### **[Module 11 - Serverless](./mod11-serverless/README.md)**
 
 ## **Clean up**
 
