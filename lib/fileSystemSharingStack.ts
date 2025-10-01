@@ -10,6 +10,7 @@ export class FileSystemSharingStack extends Stack {
 
     const efsPrivSG = new SecurityGroup(this, "EFSPrivSG", {
         securityGroupName: "efs-priv-sg",
+        allowAllOutbound: true,
         vpc: props!.vpc
     })
 

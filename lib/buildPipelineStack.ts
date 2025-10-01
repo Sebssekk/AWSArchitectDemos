@@ -1,6 +1,6 @@
 import { RemovalPolicy, Stack, StackProps } from "aws-cdk-lib";
 import { Project, Source } from "aws-cdk-lib/aws-codebuild";
-import { Pipeline, Artifact } from "aws-cdk-lib/aws-codepipeline";
+import { Pipeline, Artifact, PipelineType } from "aws-cdk-lib/aws-codepipeline";
 import { CodeCommitSourceAction, CodeBuildAction } from "aws-cdk-lib/aws-codepipeline-actions";
 import { Repository as ECRRepository} from "aws-cdk-lib/aws-ecr";
 import { Code, Repository } from "aws-cdk-lib/aws-codecommit";
@@ -44,6 +44,7 @@ export class BuildPipelineStack extends Stack {
 
     const pipeline = new Pipeline(this, "DemoPipeline", {
       pipelineName: "demo-pipeline",
+      pipelineType: PipelineType.V2,
     })
     const buildArtifact = new Artifact("BuildArtifact")
     const sourceArtifact = new Artifact('SourceArtifact')

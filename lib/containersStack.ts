@@ -42,6 +42,7 @@ export class ContainerStack extends Stack {
     })
     const ecsService = new Ec2Service(this, "DemoECSService", {
       serviceName: "nginx",
+      minHealthyPercent: 50,
       cluster: ecsCluster,
       taskDefinition: taskDefinition,
     })

@@ -21,8 +21,8 @@ export class APIAndLambdasStack extends Stack {
         autoDeleteObjects: true,
     });
 
-    const snackfuncRole = new Role(this, "SSMRole", {
-            roleName: "demo-inst-role",
+    const snackfuncRole = new Role(this, "SnackGenRole", {
+            roleName: "snack-gen-role",
             assumedBy: new ServicePrincipal("lambda.amazonaws.com"),
             managedPolicies: [
                 ManagedPolicy.fromAwsManagedPolicyName('service-role/AWSLambdaBasicExecutionRole'),
