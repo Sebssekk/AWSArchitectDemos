@@ -1,5 +1,5 @@
 import { RemovalPolicy, Stack, StackProps } from "aws-cdk-lib";
-import { Project, Source } from "aws-cdk-lib/aws-codebuild";
+import { LinuxBuildImage, Project, Source } from "aws-cdk-lib/aws-codebuild";
 import { Pipeline, Artifact, PipelineType } from "aws-cdk-lib/aws-codepipeline";
 import { CodeCommitSourceAction, CodeBuildAction } from "aws-cdk-lib/aws-codepipeline-actions";
 import { Repository as ECRRepository} from "aws-cdk-lib/aws-ecr";
@@ -30,6 +30,8 @@ export class BuildPipelineStack extends Stack {
       }),
       projectName: "demo-build",
       environment: {
+        buildImage: LinuxBuildImage.STANDARD_7_0,
+        privileged: true,
         environmentVariables: {
           REPOSITORY_URI: {value: this.ecrRepo.repositoryUri},
           AWS_DEFAULT_REGION: {value: this.region}

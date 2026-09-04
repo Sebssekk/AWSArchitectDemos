@@ -1,36 +1,32 @@
 
 const { S3Client, GetObjectCommand, PutObjectCommand } = require('@aws-sdk/client-s3')
-const {captureAWSv3Client} = require('aws-xray-sdk')
-const _s3 = new S3Client({ region: process.env.AWS_REGION })
-
-const s3 = captureAWSv3Client(_s3)
+const { captureAWSv3Client } = require('aws-xray-sdk')
+const s3 = captureAWSv3Client(new S3Client({}))
 const { translateText } = require('./translate')
 
 // Translate and save output to S3
 const doTranslation = async (message) => {
   console.log(`doTranslation: ${JSON.stringify(message)}`)
-  return new Promise(async (resolve, reject) => {
-      
-    // Get original text from object in incoming event
-    const getObjRes = await s3.send(new GetObjectCommand({
-      Bucket: message.bucket.name,
-      Key: message.object.key,
-    }))
-    // Read stream to string
-    const  originalText=   await getObjRes.Body.transformToString()
-    // Translate the text
-    const data = await translateText(originalText, process.env.TargetLanguageCode, process.env.SourceLanguageCode)
+  // Return the async chain directly so Lambda can retry failed records.
+  const sourceKey = decodeURIComponent(message.object.key.replace(/\+/g, ' '))
+  const getObjRes = await s3.send(new GetObjectCommand({
+    Bucket: message.bucket.name,
+    Key: sourceKey,
+  }))
+  const originalText = await getObjRes.Body.transformToString()
+  const data = await translateText(
+    originalText,
+    process.env.TargetLanguageCode,
+    process.env.SourceLanguageCode,
+  )
+  const baseObjectName = sourceKey.split('/').pop().replace(/\.txt$/i, '')
 
-    // Save the new translation
-    const baseObjectName = message.object.key.replace('.txt','').split('/').pop()
-    await s3.send(new PutObjectCommand({
-      Bucket: process.env.OutputBucket,
-      Key: `translated/${baseObjectName}-${process.env.TargetLanguageCode}.txt`,
-      Body: data.TranslatedText,
-      ContentType: 'text/plain'
-    }))
-    resolve()
-  })
+  await s3.send(new PutObjectCommand({
+    Bucket: process.env.OutputBucket,
+    Key: `translated/${baseObjectName}-${process.env.TargetLanguageCode}.txt`,
+    Body: data.TranslatedText,
+    ContentType: 'text/plain',
+  }))
 }
 
 
@@ -40,15 +36,9 @@ const doTranslation = async (message) => {
 exports.handler = async (event) => {
   console.log (JSON.stringify(event, null, 2))
 
-  await Promise.all(
-    event.Records.map(async (record) => {
-      try {
-        const message = record.s3
-        await doTranslation(message)
-      } catch (err) {
-        console.error(`Handler error: ${err}`)
-      }
-    })
-  )
+  if (!event?.Records?.length) return
+
+  // Do not swallow errors: S3/Lambda must retry failed translations.
+  await Promise.all(event.Records.map((record) => doTranslation(record.s3)))
 }
 

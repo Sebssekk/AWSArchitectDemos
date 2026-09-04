@@ -2,7 +2,7 @@ import { RemovalPolicy, Stack, Tags } from "aws-cdk-lib";
 import { Construct } from "constructs";
 import { ECRStackProps, VpcAndSGStackProps } from "./types";
 import { ContainerImage, Ec2Service, Ec2TaskDefinition, Cluster as ECSCluster, EcsOptimizedImage, Protocol} from "aws-cdk-lib/aws-ecs";
-import { InstanceClass, InstanceSize, InstanceType, SecurityGroup } from "aws-cdk-lib/aws-ec2";
+import { InstanceClass, InstanceSize, InstanceType, Peer, Port, SecurityGroup } from "aws-cdk-lib/aws-ec2";
 import { DockerImageAsset } from "aws-cdk-lib/aws-ecr-assets";
 import { ApplicationListener, ApplicationLoadBalancer, ApplicationProtocol } from "aws-cdk-lib/aws-elasticloadbalancingv2";
 import { AutoScalingGroup } from "aws-cdk-lib/aws-autoscaling";
@@ -51,6 +51,8 @@ export class ContainerStack extends Stack {
           securityGroupName: "ecs-lb-SG",
           vpc: props!.vpc
     })
+        // Internet-facing load balancers still require an explicit ingress rule.
+        lbSg.addIngressRule(Peer.anyIpv4(), Port.HTTP, "Public demo HTTP access");
     const ecsLb = new ApplicationLoadBalancer(this, "ECSELB", {
       loadBalancerName: "ecs-elb",
       vpc: props!.vpc,

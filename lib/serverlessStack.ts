@@ -211,6 +211,8 @@ export class ServerlessStack extends Stack {
     const pieOrderQueue = new Queue(this, "PieOrderQueue", {
       queueName: "pieOrder",
       removalPolicy: RemovalPolicy.DESTROY,
+      // Avoid duplicate delivery while a batch is still being processed.
+      visibilityTimeout: Duration.minutes(5),
       deadLetterQueue: {
         queue: pieOrderQueueDLQ,
         maxReceiveCount: 2,
